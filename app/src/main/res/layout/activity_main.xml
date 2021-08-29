@@ -19,7 +19,7 @@
             android:id="@+id/input_port"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginTop="100dp"
             android:autofillHints="@string/input_hint"
             android:hint="@string/input_hint"
             android:inputType="number"
@@ -28,18 +28,20 @@
             android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@id/main_button"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/main_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{()->vm::onAdbClicked}"
-            android:text="@string/open"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/main_button"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/adb_button"
+            android:onClick="@{()->vm.onAdbClicked()}"
+            android:selected="@{vm.adbIsOpened}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/input_port" />
 
         <TextView
             android:id="@+id/status_line"
@@ -52,17 +54,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/main_button" />
 
-        <TextView
-            android:id="@+id/log_text"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_log"
             android:layout_width="0dp"
-            android:layout_height="200dp"
+            android:layout_height="0dp"
             android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="15dp"
-            android:text="@{vm.logText}"
-            android:textColor="@color/black"
+            android:fillViewport="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status_line">
+
+            <TextView
+                android:id="@+id/log_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@{vm.logText}"
+                android:textColor="@color/black"
+                android:textIsSelectable="true"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

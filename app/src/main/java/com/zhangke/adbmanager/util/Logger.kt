@@ -40,11 +40,15 @@ object Logger {
     }
 
     private fun buildErrorLogText(message: String? = null, e: Exception? = null): String {
-        return "message: $message, error:${e.toString()}"
+        if (message == null && e == null) return "empty error log!"
+        if (message == null) return e.toString()
+        if (e == null) return message
+        return "message: $message, error:$e"
     }
 }
 
-fun interface LogListener {
+fun
+interface LogListener {
 
     fun onNewLog(log: String, @LogLevelRange level: Int)
 }

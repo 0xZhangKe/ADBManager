@@ -12,11 +12,6 @@ import com.google.android.material.internal.ContextUtils
 lateinit var appContext: Context
     private set
 
-@Volatile
-lateinit var application: Application
-    private set
-
 fun initApplication(app: Application) {
-    application = app
-    appContext = application
+    appContext = app
 }

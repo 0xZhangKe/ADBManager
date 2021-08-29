@@ -1,10 +1,8 @@
 package com.zhangke.adbmanager.util
 
 import android.net.wifi.WifiManager
-import android.util.Log
 import java.io.BufferedReader
 import java.io.DataOutputStream
-import java.io.InputStreamReader
 
 
 /**
@@ -29,21 +27,37 @@ object DeviceUtils {
         return successed
     }
 
+    fun getProp(property: String): String {
+        var result = ""
+        suProcessOutputStream { process, out ->
+            val reader = BufferedReader(process.inputStream.reader())
+            out.writeBytes("getprop $property\n")
+            out.writeBytes("exit\n")
+            out.flush()
+            process.waitFor()
+            result = reader.readLine()
+            Logger.i(TAG, "getProp($property) -> $result")
+        }
+        return result
+    }
+
     fun isProcessRunning(processName: String): Boolean {
         var running = false
-        Runtime.getRuntime().exec("ps").use { process ->
-            BufferedReader(InputStreamReader(process.inputStream)).use {
-                it.forEachLine { line ->
-                    if (line.contains(processName)) {
-                        running = true
-                    }
+        suProcessOutputStream { process, outputStream ->
+            val reader = BufferedReader(process.inputStream.reader())
+            outputStream.writeBytes("ps\n")
+            outputStream.writeBytes("exit\n")
+            outputStream.flush()
+            process.waitFor()
+            reader.forEachLine { line ->
+                if (line.contains(processName)) {
+                    running = true
                 }
             }
-            process.waitFor()
         }.error {
-            Logger.e(TAG, "isProcessRunning($processName)", it)
-            Log.e(TAG, it.toString())
+            Logger.e(TAG, it.toString())
         }
+        Logger.i(TAG, "isProcessRunning($processName) -> $running")
         return running
     }
 

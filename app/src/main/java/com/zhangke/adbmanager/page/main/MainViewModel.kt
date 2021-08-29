@@ -1,12 +1,12 @@
 package com.zhangke.adbmanager.page.main
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.wifi.WifiManager
-import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.zhangke.adbmanager.R
 import com.zhangke.adbmanager.util.*
@@ -21,6 +21,7 @@ class MainViewModel : ViewModel() {
     val adbPort = MutableLiveData<String>()
     val statusLine = MutableLiveData<String>()
     val logText = MutableLiveData<CharSequence>()
+    val adbIsOpened = MutableLiveData<Boolean>()
 
     private val adbHelper = ADBHelper()
     private val logListener = object : LogListener {
@@ -31,26 +32,34 @@ class MainViewModel : ViewModel() {
     }
 
     private val adbListener: ADBStateListener = {
-        if (it) {
-
-        } else {
-
-        }
+        adbIsOpened.value = it
     }
 
-    fun init() {
+    fun init(lifecycleOwner: LifecycleOwner) {
         Logger.addLogListener(logListener)
         adbHelper.addListener(adbListener)
-        adbPort.value = adbHelper.getDefaultPort().toString()
+        adbPort.value = adbHelper.getDesiredPort().toString()
         if (!DeviceUtils.hasRootPermission()) {
             showToast(R.string.root_np_permission)
             return
         }
         requireWifiOpen()
+        adbIsOpened.observe(lifecycleOwner, Observer {
+            updateStatusLine(it)
+        })
     }
 
     fun onAdbClicked() {
-        adbHelper.toggleADB()
+        if (adbIsOpened.value == true) {
+            adbHelper.closeADB()
+        } else {
+            val port = adbPort.value?.toIntOrNull()
+            if (port == null) {
+                showToast(R.string.no_port)
+                return
+            }
+            adbHelper.openADB(port)
+        }
     }
 
     override fun onCleared() {
@@ -91,5 +100,13 @@ class MainViewModel : ViewModel() {
     private fun getCurrentTime(): String {
         val format = SimpleDateFormat("HH:mm:ss:SSS", Locale.ROOT)
         return format.format(Date())
+    }
+
+    private fun updateStatusLine(adbIsOpened: Boolean) {
+        val ip =
+            DeviceUtils.getIpAddress(appContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
+        val port = adbHelper.getRunningPort()
+        val state = if (adbIsOpened) "OPENED" else "CLOSED"
+        statusLine.value = "$state $ip:$port"
     }
 }

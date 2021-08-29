@@ -26,3 +26,7 @@ open class ErrorHandler {
         errorBlock = block
     }
 }
+
+fun String.toIntOr(default: Int): Int {
+    return toIntOrNull() ?: default
+}

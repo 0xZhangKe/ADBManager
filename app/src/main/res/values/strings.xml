@@ -6,4 +6,5 @@
     <string name="wifi_is_not_open">Wifi没开</string>
     <string name="input_hint">Input port</string>
     <string name="root_np_permission">ROOT ROOT ROOT ROOT</string>
+    <string name="no_port">先输入端口</string>
 </resources>
